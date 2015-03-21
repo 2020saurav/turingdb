@@ -2,12 +2,12 @@ import socket
 import sys
 import time
 s = socket.socket()
-s.bind(("",8182))
+s.bind(("",2020))
 s.listen(10)
 
 while True:
 	sc, address = s.accept()
-	print address
+	# print address
 	query = sc.recv(1024)
 	query = query.split(" ")
 	if query[0]=="INSERT":

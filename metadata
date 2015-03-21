@@ -1,0 +1,12 @@
+<ServerID> <FileName> # for root
+
+<ServerID> <LeafCount>
+<ServerID> <LeafCount>
+<ServerID> <LeafCount>
+<ServerID> <LeafCount>
+
+<ServerID> <NodeCount>
+<ServerID> <NodeCount>
+<ServerID> <NodeCount>
+<ServerID> <NodeCount>
+<ServerID> <NodeCount>
