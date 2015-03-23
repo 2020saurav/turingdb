@@ -10,7 +10,7 @@ root = [0,"filename"] # (serverID, filename)
 fileCount = [] # [(serverID, leafCount, nodeCount),..]
 
 def readMetaData():
-	global numServer, root, leafCount, nodeCount
+	global numServer, root, fileCount
 	f = open('metadata','r')
 	lines = f.readlines()
 	numServer = int(lines[0].strip())
@@ -20,9 +20,16 @@ def readMetaData():
 		fileCount.append(map(int,lines[i+2].strip().split()))
 	f.close()
 
+def writeMetaData():
+	global numServer, root, fileCount
+	with open("metadata", "w+") as f:
+			f.write(str(numServer)+"\n")
+			f.write(str(root[0])+"\t"+root[1]+"\n")
+			for i in range(0, numServer):
+				f.write(str(fileCount[i][0])+"\t"+str(fileCount[i][1])+"\t"+str(fileCount[i][2])+"\n")
 readMetaData()
 print fileCount
-
+writeMetaData()
 # read contents from files servermap, metadata, scores.
 
 
