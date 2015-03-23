@@ -13,7 +13,7 @@ The problem consists of 2 parts:
 - Implementation of distributed database which uses B+ Tree to efficiently index the database
 - Analysis of response time on general queries
 
-![alt text](https://raw.githubusercontent.com/proneetv/turingdb/master/dbpt.png?token=ADs6JgKLG2rjjqJNw5RUlZiFDzG7U_gzks5VGYF3wA%3D%3D"Distributed B+ Tree")
+![alt text](http://cse.iitk.ac.in/users/ksaurav/dbpt.png"Distributed B+ Tree")
 
 
 **Score based system** : For this problem, we will use a score-based technique to distribute data among the nodes. Servers will have their scores computed based on their average response time which depends on network response time, processing speed and Disk I/O time. This score will roughly determine how much data should be kept on which servers.
