@@ -39,6 +39,7 @@ class Leaf(object):
 		self.parent = lines[3].strip()
 		self.left = lines[4].strip()
 		self.right = lines[5].strip()
+		f.close()
 
 class Node(object):
 	'''
@@ -76,3 +77,4 @@ class Node(object):
 		self.key = [float(x) for x in self.key]
 		self.ptr = (lines[2].strip().split('\t'))
 		self.parent = lines[3].strip()
+		f.close()
