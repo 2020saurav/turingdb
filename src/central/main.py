@@ -4,7 +4,30 @@
 - To keep the content/object in CDN server using its key
 '''
 
-# Nodes will be addressed using (ServerID, FileName)
+
+######### File Content Structure for servermap, metadata and score  ################
+#
+# * Leaf Node or Internal Node (called 'entity' henceforth) will be represented
+# by a tuple containing its serverID and name of the file it represents.
+# Entities will be addressed using (ServerID, FileName)
+#
+# * Each server will have a serverID, whose mapping will be stored in servermap
+# which will have server's IP, port to connect to and server's score.
+# <serverID> <IP> <port> <score>
+# The score may be determined using network time, processing speed and other overheads
+# This file will be mirrored in all the servers and updated anytime a change is seen.
+#
+# * metadata will contain information about current root and count of files 
+# for each server for internal nodes and leaf nodes to allocate new name for files.
+# First Line 	: <Number of servers>
+# Second Line 	: <ServerID of server which has root> <Name of file which is the root>
+# Third..n Line : <ServerID> <LeafCount> <NodeCount>
+#
+# * score will be used to collect statistics from query data. This can be used to learn
+# patterns in query data and its response and accordingly migrate/rebuild the structure
+# to optimize running time of queries.
+#
+
 numServer = 0
 root = [0,"filename"] # (serverID, filename)
 fileCount = [] # [(serverID, leafCount, nodeCount),..]
@@ -23,22 +46,17 @@ def readMetaData():
 def writeMetaData():
 	global numServer, root, fileCount
 	with open("metadata", "w+") as f:
-			f.write(str(numServer)+"\n")
-			f.write(str(root[0])+"\t"+root[1]+"\n")
-			for i in range(0, numServer):
-				f.write(str(fileCount[i][0])+"\t"+str(fileCount[i][1])+"\t"+str(fileCount[i][2])+"\n")
-readMetaData()
-print fileCount
-writeMetaData()
+		f.write(str(numServer)+"\n")
+		f.write(str(root[0])+"\t"+root[1]+"\n")
+		for i in range(0, numServer):
+			f.write(str(fileCount[i][0])+"\t"+str(fileCount[i][1])+"\t"+str(fileCount[i][2])+"\n")
+
 # read contents from files servermap, metadata, scores.
 
 
 # TODO Query handler
 
 # TODO New Node Creator
-
-
-
 
 # call stats.py when needed 
 
