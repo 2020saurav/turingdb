@@ -32,7 +32,7 @@ from stats import data
 numServer = 0
 root = [0,"filename"] # (serverID, filename)
 fileCount = dict() # { serverID:{"leafCount":lc, "nodeCount":nc}, ...}
-
+serverData = dict() # { serverID:{"IP": IP, "port": port, "maxCap": maxCap, "score": score}, ...}
 def readMetaData():
 	global numServer, root, fileCount
 	f = open('metadata','r')
@@ -53,11 +53,24 @@ def writeMetaData():
 		for serverID, value in fileCount.iteritems():
 			f.write(str(serverID) + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
 
+def readServerData():
+	global serverData
+	f = open('servermap','r')
+	for line in f.readlines():
+		serverID, IP, port, maxCap, score = line.strip().split()
+		serverID = int(serverID)
+		score = float(score)
+		maxCap = float(maxCap)
+		serverData[serverID] = {"IP": IP, "port": port, "maxCap": maxCap, "score": score}
+
 def getBestServer(key):
 	'''
 	Returns the server id of the server based p-value of this key,
 	server scores and server occupancy.
 	'''
+	global numServer
+	bestScore = 0
+	bestServer = 0
 	return 0
 
 def getNewLeaf(key):
