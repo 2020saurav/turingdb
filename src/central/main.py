@@ -3,7 +3,8 @@
 - To create new nodes (internal and leaf) in best possible server and returning it to caller.
 - To keep the content/object in CDN server using its key
 '''
-
+from stats import p
+from stats import data
 
 ######### File Content Structure for servermap, metadata and score  ################
 #
@@ -13,7 +14,7 @@
 #
 # * Each server will have a serverID, whose mapping will be stored in servermap
 # which will have server's IP, port to connect to and server's score.
-# <serverID> <IP> <port> <score>
+# <serverID> <IP> <port> <max_storage_limit> <score>
 # The score may be determined using network time, processing speed and other overheads
 # This file will be mirrored in all the servers and updated anytime a change is seen.
 #
@@ -30,7 +31,7 @@
 
 numServer = 0
 root = [0,"filename"] # (serverID, filename)
-fileCount = [] # [(serverID, leafCount, nodeCount),..]
+fileCount = dict() # { serverID:{"leafCount":lc, "nodeCount":nc}, ...}
 
 def readMetaData():
 	global numServer, root, fileCount
@@ -40,16 +41,44 @@ def readMetaData():
 	root = lines[1].strip().split()
 	root[0] = int(root[0])
 	for i in range(0,numServer):
-		fileCount.append(map(int,lines[i+2].strip().split()))
+		serverID, leafCount, nodeCount = map(int,lines[i+2].strip().split())
+		fileCount[serverID] = {"leafCount": leafCount, "nodeCount": nodeCount}
 	f.close()
 
 def writeMetaData():
 	global numServer, root, fileCount
 	with open("metadata", "w+") as f:
-		f.write(str(numServer)+"\n")
-		f.write(str(root[0])+"\t"+root[1]+"\n")
-		for i in range(0, numServer):
-			f.write(str(fileCount[i][0])+"\t"+str(fileCount[i][1])+"\t"+str(fileCount[i][2])+"\n")
+		f.write(str(numServer) + "\n")
+		f.write(str(root[0]) + "\t" + root[1] + "\n")
+		for serverID, value in fileCount.iteritems():
+			f.write(str(serverID) + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
+
+def getBestServer(key):
+	'''
+	Returns the server id of the server based p-value of this key,
+	server scores and server occupancy.
+	'''
+	return 0
+
+def getNewLeaf(key):
+	global fileCount
+	serverID = getBestServer(key)
+	fileCount[serverID]["leafCount"]+=1
+	newName = "L"+("%09"%fileCount[serverID]["leafCount"])
+	# TODO actual file creation may not be needed
+	return newName
+
+def getNewLeaf(key):
+	global fileCount
+	serverID = getBestServer(key)
+	fileCount[serverID]["nodeCount"]+=1
+	newName = "L"+("%09"%fileCount[serverID]["nodeCount"])
+	# TODO actual file creation may not be needed
+	return newName
+
+def saveContent(key, value):
+	# save the value in some CDN server
+	pass
 
 # read contents from files servermap, metadata, scores.
 
