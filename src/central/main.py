@@ -5,7 +5,7 @@
 '''
 from stats import p
 from stats import data
-
+from stats import mutualScore
 ######### File Content Structure for servermap, metadata and score  ################
 #
 # * Leaf Node or Internal Node (called 'entity' henceforth) will be represented
@@ -13,7 +13,7 @@ from stats import data
 # Entities will be addressed using (ServerID, FileName)
 #
 # * Each server will have a serverID, whose mapping will be stored in servermap
-# which will have server's IP, port to connect to and server's score.
+# which will have server's IP, port to connect to and server's score(range 0-1).
 # <serverID> <IP> <port> <max_storage_limit> <score>
 # The score may be determined using network time, processing speed and other overheads
 # This file will be mirrored in all the servers and updated anytime a change is seen.
@@ -54,7 +54,7 @@ def writeMetaData():
 			f.write(str(serverID) + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
 
 def readServerData():
-	global serverData
+	global serverData, numServer
 	f = open('servermap','r')
 	for line in f.readlines():
 		serverID, IP, port, maxCap, score = line.strip().split()
@@ -62,15 +62,23 @@ def readServerData():
 		score = float(score)
 		maxCap = float(maxCap)
 		serverData[serverID] = {"IP": IP, "port": port, "maxCap": maxCap, "score": score}
+	assert(len(serverData) == numServer)
 
 def getBestServer(key):
 	'''
 	Returns the server id of the server based p-value of this key,
 	server scores and server occupancy.
 	'''
-	global numServer
+	global numServer, serverData, fileCount
 	bestScore = 0
-	bestServer = 0
+	bestServerID = 0
+	for serverID, value in serverData.iteritems():
+		occupancy = (fileCount[serverID]["leafCount"] + fileCount[serverID]["nodeCount"])*1.0 / value["maxCap"] / (2**20)
+											# maxCap is in GB. fileSize is in KB. PageSize ~ 1
+		mScore = mutualScore(value["score"], occupancy, p(key))
+		if mScore > bestScore:
+			bestScore = mScore
+			bestServerID = serverID
 	return 0
 
 def getNewLeaf(key):
@@ -94,8 +102,9 @@ def saveContent(key, value):
 	pass
 
 # read contents from files servermap, metadata, scores.
-
-
+readMetaData()
+readServerData()
+print serverData
 # TODO Query handler
 
 # TODO New Node Creator

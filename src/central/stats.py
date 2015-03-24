@@ -6,7 +6,31 @@ data = []
 # This key will get updated when any key in +/-500 gets returned as part of some query
 # Point Update and Range Update are needed on this array.
 #
+# data.append()
+maxVal = 1e-9
 def p(key):
 	global data
+	# keep updating maxVal, and return val/maxVal for normalized [0,1] range output
+	return 1/maxVal
+
+def magic1(score, probability):
+	# z = (x-0.5)*(y-0.5)
+	# We need this function to assign bad node to bad data, and good node to good data
+	# (0,0) and (1,1) should have highest score. (1,0) and (0,1) should have least score
+	return (score-0.5)*(probability-0.5)
+
+def magic2(score, probability):
+	# Add two Gaussians with their means at (0,0) and (1,1) and then trim off exterior parts.
+	# May add two additional inverted Gaussians with means at (1,0) and (0,1).
+	# This may perform better.
+	# Other functions can be (magic1)**n : Try visualizing with 3D plots
 	return 1
+
+def penalize(score, occupancy):
+	return score - occupancy
+
+def mutualScore(score, occupancy, probability):
+	mScore = magic1(score, probability)
+	mScore = penalize(mScore, occupancy)
+	return mScore
 
