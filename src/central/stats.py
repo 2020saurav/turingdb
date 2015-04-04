@@ -10,6 +10,7 @@ data = []
 maxVal = 1e-9
 def p(key):
 	global data
+	# get corresponding scaled probability for this key
 	# keep updating maxVal, and return val/maxVal for normalized [0,1] range output
 	return 1/maxVal
 
@@ -27,6 +28,7 @@ def magic2(score, probability):
 	return 1
 
 def penalize(score, occupancy):
+	# add weights
 	return score - occupancy
 
 def mutualScore(score, occupancy, probability):

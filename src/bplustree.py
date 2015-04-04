@@ -9,12 +9,15 @@ class Leaf(object):
 		self.keyCount = 0
 		self.key = []
 		self.ptr = []
+		# ptr is now an array of tuple/dict
 		for i in range(0,M):
 			self.key.append(2.000000)
 			self.ptr.append("unoccupied")
+			# change this ^ to dictionary
 		self.parent = "unoccupied"
 		self.left = "unoccupied"
 		self.right = "unoccupied"
+		# all these ptr to tuple/dict
 	
 	def printToFile(self, filename):
 		# to print node content to file.
@@ -28,6 +31,7 @@ class Leaf(object):
 			f.write('\n'+self.parent)
 			f.write('\n'+self.left)
 			f.write('\n'+self.right)
+			# TODO save serverID too!
 
 	def readFromFile(self, filename):
 		f = open(filename, "r")
@@ -35,7 +39,7 @@ class Leaf(object):
 		self.keyCount = int(lines[0])
 		self.key = (lines[1].strip().split('\t'))
 		self.key = [float(x) for x in self.key]
-		self.ptr = (lines[2].strip().split('\t'))
+		self.ptr = (lines[2].strip().split('\t')) # TODO read server ID too
 		self.parent = lines[3].strip()
 		self.left = lines[4].strip()
 		self.right = lines[5].strip()
@@ -53,7 +57,7 @@ class Node(object):
 		self.ptr = []
 		for i in range(0,M):
 			self.key.append(2.000000)
-			self.ptr.append("unoccupied")
+			self.ptr.append("unoccupied") # server ID?
 		# internal nodes have one more child ptr:
 		self.ptr.append("unoccupied")
 		self.parent = "unoccupied"
@@ -66,7 +70,7 @@ class Node(object):
 				f.write('{0:.6f}\t'.format(self.key[i]))
 			f.write('\n')
 			for i in range(0, M):
-				f.write(self.ptr[i]+"\t")
+				f.write(self.ptr[i]+"\t") # Server ID
 			f.write('\n'+self.parent)
 
 	def readFromFile(self, filename):
@@ -75,6 +79,47 @@ class Node(object):
 		self.keyCount = int(lines[0])
 		self.key = (lines[1].strip().split('\t'))
 		self.key = [float(x) for x in self.key]
-		self.ptr = (lines[2].strip().split('\t'))
+		self.ptr = (lines[2].strip().split('\t')) # Server ID
 		self.parent = lines[3].strip()
 		f.close()
+
+def isLeaf(s):
+	return s[0] == 'L'
+
+def findLeaf(key, root):
+	current = root
+	if isLeaf(current['filename']):
+		return current
+	n = Node()
+	# assert myServerId == current['serverID']
+	n.readFromFile(current['filename'])
+	for i in range(0, n.keyCount+1):
+		if i == n.keyCount or key <= n.key[i]:
+			pass
+	# get the (serverID, filename) tuple from n.ptr[i]
+	# set root = n.ptr[i]
+	# if the root.serverID == myServerId, then no network call,
+	# recurse on this funcion.
+	# else make call to root.serverId's handler to invoke
+	# its version of findLeaf and return the value.
+	# each of the calls will eventually get back its result from callee
+
+def splitNode(myNode):
+	pass
+	# get middle key.
+	# make call to central server to getNewNode().
+	# prepare content to write on this new file
+	# make changes to current myNode
+	# inform half of the children about change of their parent
+
+	# if current one is a ROOT (of tree) node
+	# make appropriate changes. new root setting
+	# else inform parent about new sibling
+
+def insertInNode(myNode, key, child):
+	pass
+	# assert that insertion file is in this server
+	# open file, read, find position, insert
+	# adjust child pointers, keycount++
+	# now if size limits, split
+

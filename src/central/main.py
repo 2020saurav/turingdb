@@ -79,7 +79,7 @@ def getBestServer(key):
 		if mScore > bestScore:
 			bestScore = mScore
 			bestServerID = serverID
-	return 0
+	return bestServerID
 
 def getNewLeaf(key):
 	global fileCount
