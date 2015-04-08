@@ -2,31 +2,21 @@ import socket
 import sys
 import pprint
 
-serverDetails = []
+serverDetails = dict()
 
 def readServerMap():
 	global serverDetails
-	f = open("servermap").readlines()
-	for line in f:
-		server = dict()
-		line = line.strip().split(' ')
-		server['serverID'] = line[0]
-		server['IP'] = line[1]
-		server['port'] = int(line[2])
-		server['maxStorageLimit'] = float(line[3])
-		server['score'] = float(line[4])
-		serverDetails.append(server)
-
-def getServerDetails(serverID):
-	for server in serverDetails:
-		if server['serverID'] == serverID:
-			return server
-	else:
-		return None
-
+	f = open('servermap','r')
+	for line in f.readlines():
+		serverID, IP, port, maxCap, score = line.strip().split()
+		score = float(score)
+		maxCap = float(maxCap)
+		port = int(port)
+		serverDetails[serverID] = {"IP": IP, "port": port, "maxCap": maxCap, "score": score}
+	
 def request(serverID, query):
 	s = socket.socket()
-	server = getServerDetails(serverID)
+	server = serverDetails[serverID]
 	if server != None:
 		s.connect((server['serverID'], server['port']))
 		s.send(query)
@@ -41,4 +31,4 @@ def request(serverID, query):
 	s.close()
 
 # readServerMap()
-# print getServerDetails('S02')
+# print serverDetails['S02']

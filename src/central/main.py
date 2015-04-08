@@ -32,7 +32,7 @@ from stats import mutualScore
 numServer = 0
 root = [0,"filename"] # (serverID, filename)
 fileCount = dict() # { serverID:{"leafCount":lc, "nodeCount":nc}, ...}
-serverData = dict() # { serverID:{"IP": IP, "port": port, "maxCap": maxCap, "score": score}, ...}
+serverData = dict() # { serverID:{"IP": IP, "port": port, "maxStorageCapacity": maxCap, "score": score}, ...}
 def readMetaData():
 	global numServer, root, fileCount
 	f = open('metadata','r')
@@ -58,9 +58,9 @@ def readServerData():
 	f = open('servermap','r')
 	for line in f.readlines():
 		serverID, IP, port, maxCap, score = line.strip().split()
-		serverID = int(serverID)
 		score = float(score)
 		maxCap = float(maxCap)
+		port = int(port)
 		serverData[serverID] = {"IP": IP, "port": port, "maxCap": maxCap, "score": score}
 	assert(len(serverData) == numServer)
 
