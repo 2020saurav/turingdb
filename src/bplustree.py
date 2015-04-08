@@ -1,5 +1,5 @@
 M = 10
-myServerId = "S05"
+myServerId = 'S05'
 class Leaf(object):
 	'''
 	Leaf nodes for the bplus tree.
@@ -10,40 +10,45 @@ class Leaf(object):
 		self.keyCount = 0
 		self.key = []
 		self.ptr = []
-		# ptr is now an array of tuple/dict
 		for i in range(0,M):
 			self.key.append(2.000000)
-			self.ptr.append("unoccupied")
-			# change this ^ to dictionary
-		self.parent = "unoccupied"
-		self.left = "unoccupied"
-		self.right = "unoccupied"
-		# all these ptr to tuple/dict
+			self.ptr.append({'serverID' : 'SXX', 'filename': 'unoccupied'})
+		self.parent = {'serverID' : 'SXX', 'filename': 'unoccupied'}
+		self.left = {'serverID' : 'SXX', 'filename': 'unoccupied'}
+		self.right = {'serverID' : 'SXX', 'filename': 'unoccupied'}
 	
 	def printToFile(self, filename):
 		# to print node content to file.
-		with open(filename, "w+") as f:
-			f.write(str(self.keyCount)+"\n")
+		with open(filename, 'w+') as f:
+			f.write(str(self.keyCount)+'\n')
 			for i in range(0, M):
 				f.write('{0:.6f}\t'.format(self.key[i]))
 			f.write('\n')
 			for i in range(0, M):
-				f.write(self.ptr[i]+"\t")
-			f.write('\n'+self.parent)
-			f.write('\n'+self.left)
-			f.write('\n'+self.right)
-			# TODO save serverID too!
+				f.write(self.ptr[i]['serverID']+'\t')
+				f.write(self.ptr[i]['filename']+'\t')
+			f.write('\n' + self.parent['serverID'] + '\t' + self.parent['filename'])
+			f.write('\n' + self.left['serverID'] + '\t' + self.left['filename'])
+			f.write('\n' + self.right['serverID'] + '\t' + self.right['filename'])
+			# TODO append garbage
 
 	def readFromFile(self, filename):
-		f = open(filename, "r")
+		f = open(filename, 'r')
 		lines = f.readlines()
 		self.keyCount = int(lines[0])
 		self.key = (lines[1].strip().split('\t'))
 		self.key = [float(x) for x in self.key]
-		self.ptr = (lines[2].strip().split('\t')) # TODO read server ID too
-		self.parent = lines[3].strip()
-		self.left = lines[4].strip()
-		self.right = lines[5].strip()
+		sidFiles = (lines[2].strip().split('\t'))
+		self.ptr = []
+		for i in range(0, len(sidFiles), 2):
+			self.ptr.append({'serverID' : sidFiles[i], 'filename': sidFiles[i+1]})
+
+		sidFile = lines[3].strip().split('\t')
+		self.parent = {'serverID' : sidFile[0], 'filename': sidFile[1]}
+		sidFile = lines[4].strip().split('\t')
+		self.left = {'serverID' : sidFile[0], 'filename': sidFile[1]}
+		sidFile = lines[5].strip().split('\t')
+		self.right = {'serverID' : sidFile[0], 'filename': sidFile[1]}
 		f.close()
 
 class Node(object):
@@ -58,30 +63,34 @@ class Node(object):
 		self.ptr = []
 		for i in range(0,M):
 			self.key.append(2.000000)
-			self.ptr.append("unoccupied") # server ID?
-		# internal nodes have one more child ptr:
-		self.ptr.append("unoccupied")
-		self.parent = "unoccupied"
+			self.ptr.append({'serverID' : 'SXX', 'filename': 'unoccupied'})
+		self.parent = {'serverID' : 'SXX', 'filename': 'unoccupied'}
 	
 	def printToFile(self, filename):
 		# to print node content to file.
-		with open(filename, "w+") as f:
-			f.write(str(self.keyCount)+"\n")
+		with open(filename, 'w+') as f:
+			f.write(str(self.keyCount)+'\n')
 			for i in range(0, M):
 				f.write('{0:.6f}\t'.format(self.key[i]))
 			f.write('\n')
 			for i in range(0, M):
-				f.write(self.ptr[i]+"\t") # Server ID
-			f.write('\n'+self.parent)
+				f.write(self.ptr[i]['serverID']+'\t')
+				f.write(self.ptr[i]['filename']+'\t')
+			f.write('\n' + self.parent['serverID'] + '\t' + self.parent['filename'])
 
 	def readFromFile(self, filename):
-		f = open(filename, "r")
+		f = open(filename, 'r')
 		lines = f.readlines()
 		self.keyCount = int(lines[0])
 		self.key = (lines[1].strip().split('\t'))
 		self.key = [float(x) for x in self.key]
-		self.ptr = (lines[2].strip().split('\t')) # Server ID
-		self.parent = lines[3].strip()
+		sidFiles = (lines[2].strip().split('\t'))
+		self.ptr = []
+		for i in range(0, len(sidFiles), 2):
+			self.ptr.append({'serverID' : sidFiles[i], 'filename': sidFiles[i+1]})
+
+		sidFile = lines[3].strip().split('\t')
+		self.parent = {'serverID' : sidFile[0], 'filename': sidFile[1]}
 		f.close()
 
 def isLeaf(s):
@@ -98,11 +107,11 @@ def findLeaf(key, filename):
 			if i == n.keyCount or key <= n.key[i]:
 				pass
 		# TODO get the childNode = (serverID, filename) dict from n.ptr[i]
-		childNode = { "serverID" : "S05", "filename" : "F0001"}
+		childNode = { 'serverID' : 'S05', 'filename' : 'F0001'}
 		if childNode['serverID'] == myServerId:
 			result = findLeaf(key, childNode['filename'])
 		else:
-			query = "FINDLEAF$"+str(key)+"$"+childNode['filename']
+			query = 'FINDLEAF$'+str(key)+'$'+childNode['filename']
 			result = client.request(childNode['serverID'], query)
 		return result
 
@@ -126,3 +135,7 @@ def insertInNode(myNode, key, child):
 	# adjust child pointers, keycount++
 	# now if size limits, split
 
+a = Leaf()
+# a.printToFile('whatever')
+a.readFromFile('whatever')
+print a.parent

@@ -71,7 +71,7 @@ def getBestServer(key):
 	'''
 	global numServer, serverData, fileCount
 	bestScore = 0
-	bestServerID = 0
+	bestServerID = ''
 	for serverID, value in serverData.iteritems():
 		occupancy = (fileCount[serverID]["leafCount"] + fileCount[serverID]["nodeCount"])*1.0 / value["maxCap"] / (2**20)
 											# maxCap is in GB. fileSize is in KB. PageSize ~ 1
@@ -87,15 +87,17 @@ def getNewLeaf(key):
 	fileCount[serverID]["leafCount"]+=1
 	newName = "L"+("%09"%fileCount[serverID]["leafCount"])
 	# TODO actual file creation may not be needed
-	return newName
+	result = {"serverID": serverID, "filename": newName}
+	return result
 
-def getNewLeaf(key):
+def getNewNode(key):
 	global fileCount
 	serverID = getBestServer(key)
 	fileCount[serverID]["nodeCount"]+=1
-	newName = "L"+("%09"%fileCount[serverID]["nodeCount"])
+	newName = "N"+("%09"%fileCount[serverID]["nodeCount"])
 	# TODO actual file creation may not be needed
-	return newName
+	result = {"serverID": serverID, "filename": newName}
+	return result
 
 def saveContent(key, value):
 	# save the value in some CDN server

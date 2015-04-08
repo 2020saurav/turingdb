@@ -9,7 +9,7 @@ while True:
 	sc, address = s.accept()
 	# print address
 	query = sc.recv(1024)
-	query = query.split(" ")
+	query = query.split("$")
 	if query[0]=="INSERT":
 		print "Query to insert",query[1],"key"
 		sc.send("Your query is under process")
