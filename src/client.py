@@ -12,7 +12,7 @@ def readServerMap():
 		score = float(score)
 		maxCap = float(maxCap)
 		port = int(port)
-		serverDetails[serverID] = {"IP": IP, "port": port, "maxCap": maxCap, "score": score}
+		serverDetails[serverID] = {"serverID": serverID, "IP": IP, "port": port, "maxCap": maxCap, "score": score}
 	
 def request(serverID, query):
 	s = socket.socket()

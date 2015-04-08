@@ -61,7 +61,7 @@ def readServerData():
 		score = float(score)
 		maxCap = float(maxCap)
 		port = int(port)
-		serverData[serverID] = {"IP": IP, "port": port, "maxCap": maxCap, "score": score}
+		serverData[serverID] = {"serverID": serverID, "IP": IP, "port": port, "maxCap": maxCap, "score": score}
 	assert(len(serverData) == numServer)
 
 def getBestServer(key):
