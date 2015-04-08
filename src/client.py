@@ -18,13 +18,12 @@ def request(serverID, query):
 	s = socket.socket()
 	server = serverDetails[serverID]
 	if server != None:
-		s.connect((server['serverID'], server['port']))
+		s.connect((server['IP'], server['port']))
+		s.send(str(len(query)))
 		s.send(query)
 		# wait for response
 		responseLength = int(s.recv(100))
-		# print responseLength
 		response = s.recv(responseLength)
-		# print response
 		return response
 	else:
 		return "SERVER_NOT_FOUND"

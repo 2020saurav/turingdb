@@ -15,13 +15,15 @@ s.listen(10)
 while True:
 	sc, address = s.accept()
 	# print address
-	query = sc.recv(1024)
+	qlen = int(sc.recv(100))
+	query = sc.recv(qlen)
 	query = query.split("$")
 
 	if query[0]=="NEWLEAF":
 		key = float(query[1])
 		newLeaf = main.getNewLeaf(key)
 		response = newLeaf['serverID'] + "$" + newLeaf['fileName']
+		sc.send(str(len(response)))
 		sc.send(response)
 	else:
 		print "Unknown Query"

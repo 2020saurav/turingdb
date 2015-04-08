@@ -96,11 +96,14 @@ class Node(object):
 def isLeaf(s):
 	return s[0] == 'L'
 
+def stringify(a, b):
+	return a + "$" + b
+
 def findLeaf(key, filename):
 	if isLeaf(filename):
-		return (myServerId, filename)
+		response = stringify(myServerId, filename)
+		return response
 	else:
-
 		n = Node()
 		n.readFromFile(filename)
 		for i in range(0, n.keyCount+1):
@@ -135,7 +138,15 @@ def insertInNode(myNode, key, child):
 	# adjust child pointers, keycount++
 	# now if size limits, split
 
-a = Leaf()
+def insertInLeaf(key, leafName):
+	l = Leaf()
+	l.readFromFile(leafName)
+	# TODO complete this
+	# find position and insert and save like normal bpt
+	# return success message
+
+
+# a = Leaf()
 # a.printToFile('whatever')
-a.readFromFile('whatever')
-print a.parent
+# a.readFromFile('whatever')
+# print a.parent
