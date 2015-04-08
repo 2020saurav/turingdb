@@ -1,4 +1,5 @@
 M = 10
+myServerId = "S05"
 class Leaf(object):
 	'''
 	Leaf nodes for the bplus tree.
@@ -86,23 +87,25 @@ class Node(object):
 def isLeaf(s):
 	return s[0] == 'L'
 
-def findLeaf(key, root):
-	current = root
-	if isLeaf(current['filename']):
-		return current
-	n = Node()
-	# assert myServerId == current['serverID']
-	n.readFromFile(current['filename'])
-	for i in range(0, n.keyCount+1):
-		if i == n.keyCount or key <= n.key[i]:
-			pass
-	# get the (serverID, filename) tuple from n.ptr[i]
-	# set root = n.ptr[i]
-	# if the root.serverID == myServerId, then no network call,
-	# recurse on this funcion.
-	# else make call to root.serverId's handler to invoke
-	# its version of findLeaf and return the value.
-	# each of the calls will eventually get back its result from callee
+def findLeaf(key, filename):
+	if isLeaf(filename):
+		return (myServerId, filename)
+	else:
+
+		n = Node()
+		n.readFromFile(filename)
+		for i in range(0, n.keyCount+1):
+			if i == n.keyCount or key <= n.key[i]:
+				pass
+		# TODO get the childNode = (serverID, filename) dict from n.ptr[i]
+		childNode = { "serverID" : "S05", "filename" : "F0001"}
+		if childNode['serverID'] == myServerId:
+			result = findLeaf(key, childNode['filename'])
+		else:
+			query = "FINDLEAF$"+str(key)+"$"+childNode['filename']
+			result = client.request(childNode['serverID'], query)
+		return result
+
 
 def splitNode(myNode):
 	pass
