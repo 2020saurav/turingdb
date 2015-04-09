@@ -184,6 +184,86 @@ def insertInLeaf(leafName, key, ptr):
 
 	return "SUCCESS"
 
+def splitLeaf(fileName):
+	n = Leaf()
+	sib = Leaf()
+	nextLeaf = Leaf()
+
+	n.readFromFile(leafName)
+	midKey = n.key[M/2]
+	
+	query = "NEWLEAF$" + str(midKey)
+	response = client.request(centralServerID, query)
+	response = response.split('$')
+	
+	sibling = dict()
+	sibling['serverID'] = response[0]
+	sibling['fileName'] = response[1]
+
+	n.keyCount = M/2
+	sib.keyCount = M-M/2
+	for i in range(0, sib.keyCount):
+		sib.key[i] = n.key[i + M/2]
+		sib.ptr[i] = n.ptr[i + M/2]
+
+	right = n.right
+	if right['serverID'] != 'SXX':
+		if right['serverID'] == myServerId:
+			nextLeaf.readFromFile(right['fileName'])
+			nextLeaf.left = sibling
+			sib.right = right
+			nextLeaf.printToFile(right['fileName'])
+		else:
+			pass
+			# TODO fetch content from network
+			# TODO convert above local call to network call
+			# OR may be just send a request so that it changes
+			# its left pointer to point to sibling.
+			# correct sib.right to point to this
+	n.right = sibling
+	sib.left = {'serverID': myServerId, 'fileName': leafName}
+
+	query = "WHOISROOT"
+	response = client.request(centralServerID, query)
+	response = response.split('$')
+	root = dict()
+	root['serverID'] = response[0]
+	root['fileName'] = response[1]
+
+	if myServerId == root['serverID'] and fileName == root['fileName']: # this is root
+		query = "NEWNODE$" + str(midKey)
+		response = client.request(centralServerID, query)
+		response = response.split('$')
+		root['serverID'] = response[0]
+		root['fileName'] = response[1]
+		newRoot = Node()
+		newRoot.key[0] = midKey
+		newRoot.ptr[0] = {'serverID': myServerId, 'fileName': fileName}
+		newRoot.ptr[1] = {'serverID': sibling['serverID'], 'fileName': sibling['fileName']}
+		newRoot.keyCount = 1
+		query = "SAVENODE$" + root['fileName'] + "$" + stringifyNode(newRoot)
+		response = client.request(root['serverID'], query)
+		query = "CHANGEROOT$" + root['serverID'] + "$" + root['fileName']
+		response = client.request(centralServerID, query)
+		n.parent = root
+		sib.parent = root
+		n.printToFile(fileName)
+		if sibling['serverID'] == myServerId:
+			sib.printToFile(sibling['fileName'])
+		else:
+			query = "SAVELEAF$" + sibling['filename'] + "$" + stringifyLeaf(sib)
+			response = client.request(sibling['serverID'], query)
+	else:
+		sib.parent = n.parent
+		n.printToFile(fileName)
+		if sibling['serverID'] == myServerId:
+			sib.printToFile(sibling['fileName'])
+		else:
+			query = "SAVELEAF$" + sibling['filename'] + "$" + stringifyLeaf(sib)
+			response = client.request(sibling['serverID'], query)
+		
+		# TODO : insert this midkey in parent, send new sibling's name too!		
+
 
 # a = Leaf()
 # a.printToFile('whatever')
