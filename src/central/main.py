@@ -30,7 +30,7 @@ from stats import mutualScore
 #
 
 numServer = 0
-root = [0,"filename"] # (serverID, filename)
+root = [0,"fileName"] # (serverID, fileName)
 fileCount = dict() # { serverID:{"leafCount":lc, "nodeCount":nc}, ...}
 serverData = dict() # { serverID:{"IP": IP, "port": port, "maxStorageCapacity": maxCap, "score": score}, ...}
 def readMetaData():
@@ -86,8 +86,8 @@ def getNewLeaf(key):
 	serverID = getBestServer(key)
 	fileCount[serverID]["leafCount"]+=1
 	newName = "L"+("%09"%fileCount[serverID]["leafCount"])
-	# TODO actual file creation may not be needed
-	result = {"serverID": serverID, "filename": newName}
+	# TODO actual file creation may be needed
+	result = {"serverID": serverID, "fileName": newName}
 	return result
 
 def getNewNode(key):
@@ -95,8 +95,8 @@ def getNewNode(key):
 	serverID = getBestServer(key)
 	fileCount[serverID]["nodeCount"]+=1
 	newName = "N"+("%09"%fileCount[serverID]["nodeCount"])
-	# TODO actual file creation may not be needed
-	result = {"serverID": serverID, "filename": newName}
+	# TODO actual file creation may be needed
+	result = {"serverID": serverID, "fileName": newName}
 	return result
 
 def saveContent(key, value):

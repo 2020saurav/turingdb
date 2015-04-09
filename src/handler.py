@@ -28,7 +28,8 @@ while True:
 	elif query[0]=='INSERTINLEAF':
 		key = float(query[1])
 		leafName = query[2]
-		response = bpt.insertInLeaf(key, leafName)
+		ptr = query[3]
+		response = bpt.insertInLeaf(leafName, key, ptr)
 		sc.send(str(len(response)))
 		sc.send(response)
 	else:
