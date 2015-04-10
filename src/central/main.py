@@ -29,29 +29,34 @@ from stats import mutualScore
 # to optimize running time of queries.
 #
 
-numServer = 0
-root = [0,"fileName"] # (serverID, fileName)
+numServer = 2
+root = dict() # (serverID, fileName)
 fileCount = dict() # { serverID:{"leafCount":lc, "nodeCount":nc}, ...}
 serverData = dict() # { serverID:{"IP": IP, "port": port, "maxStorageCapacity": maxCap, "score": score}, ...}
+
 def readMetaData():
 	global numServer, root, fileCount
+
 	f = open('metadata','r')
 	lines = f.readlines()
 	numServer = int(lines[0].strip())
-	root = lines[1].strip().split()
-	root[0] = int(root[0])
-	for i in range(0,numServer):
-		serverID, leafCount, nodeCount = map(int,lines[i+2].strip().split())
-		fileCount[serverID] = {"leafCount": leafCount, "nodeCount": nodeCount}
+	rootinfo = lines[1].strip().split()
+	root['serverID'] = rootinfo[0]
+	root['fileName'] = rootinfo[1]
+
+	for i in range(0, numServer):
+		serverID, leafCount, nodeCount = lines[i+2].strip().split()
+		fileCount[serverID] = {"leafCount": int(leafCount), "nodeCount": int(nodeCount)}
+	
 	f.close()
 
 def writeMetaData():
 	global numServer, root, fileCount
 	with open("metadata", "w+") as f:
 		f.write(str(numServer) + "\n")
-		f.write(str(root[0]) + "\t" + root[1] + "\n")
+		f.write(str(root['serverID']) + "\t" + root['fileName'] + "\n")
 		for serverID, value in fileCount.iteritems():
-			f.write(str(serverID) + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
+			f.write(serverID + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
 
 def readServerData():
 	global serverData, numServer
