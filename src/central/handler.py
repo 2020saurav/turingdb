@@ -15,7 +15,7 @@ s.listen(10)
 while True:
 	sc, address = s.accept()
 	# print address
-	qlen = int(sc.recv(100))
+	qlen = int(sc.recv(5))
 	query = sc.recv(qlen)
 	query = query.split('$')
 
@@ -23,26 +23,26 @@ while True:
 		key = float(query[1])
 		newLeaf = main.getNewLeaf(key)
 		response = newLeaf['serverID'] + '$' + newLeaf['fileName']
-		sc.send(str(len(response)))
+		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
 	elif query[0]=='NEWNODE':
 		key = float(query[1])
 		newNode = main.getNewNode(key)
 		response = newNode['serverID'] + '$' + newNode['fileName']
-		sc.send(str(len(response)))
+		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
 	elif query[0]=='WHOISROOT':
 		response = main.root['serverID'] + "$" + main.root['fileName']
-		sc.send(str(len(response)))
+		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
 	elif query[0]=='CHANGEROOT':
 		serverID = query[1]
 		fileName = query[2]
 		response = main.updateRoot(serverID, fileName)
-		sc.send(str(len(response)))
+		sc.send(str('%05d'%len(response)))
 		sc.send(response)		
 
 	else:

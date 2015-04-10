@@ -19,15 +19,12 @@ def request(serverID, query):
 	server = serverDetails[serverID]
 	if server != None:
 		s.connect((server['IP'], server['port']))
-		s.send(str(len(query)))
+		s.send(str('%05d'%len(query)))
 		s.send(query)
 		# wait for response
-		responseLength = int(s.recv(100))
+		responseLength = int(s.recv(5))
 		response = s.recv(responseLength)
 		return response
 	else:
 		return "SERVER_NOT_FOUND"
 	s.close()
-
-# readServerMap()
-# print serverDetails['S02']

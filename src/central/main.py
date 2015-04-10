@@ -6,6 +6,7 @@
 from stats import p
 from stats import data
 from stats import mutualScore
+import client
 ######### File Content Structure for servermap, metadata and score  ################
 #
 # * Leaf Node or Internal Node (called 'entity' henceforth) will be represented
@@ -29,13 +30,14 @@ from stats import mutualScore
 # to optimize running time of queries.
 #
 
-numServer = 2
+numServer = 3
 root = dict() # (serverID, fileName)
-fileCount = dict() # { serverID:{"leafCount":lc, "nodeCount":nc}, ...}
-serverData = dict() # { serverID:{"IP": IP, "port": port, "maxStorageCapacity": maxCap, "score": score}, ...}
+fileCount = dict() # { serverID:{'leafCount':lc, 'nodeCount':nc}, ...}
+serverData = dict() # { serverID:{'IP': IP, 'port': port, 'maxStorageCapacity': maxCap, 'score': score}, ...}
+cdnCount = 0
 
 def readMetaData():
-	global numServer, root, fileCount
+	global numServer, root, fileCount, cdnCount
 
 	f = open('metadata','r')
 	lines = f.readlines()
@@ -46,24 +48,25 @@ def readMetaData():
 
 	for i in range(0, numServer):
 		serverID, leafCount, nodeCount = lines[i+2].strip().split()
-		fileCount[serverID] = {"leafCount": int(leafCount), "nodeCount": int(nodeCount)}
-	
+		fileCount[serverID] = {'leafCount': int(leafCount), 'nodeCount': int(nodeCount)}
+	cdnCount += 1
+
 	f.close()
 
 def writeMetaData():
 	global numServer, root, fileCount
-	with open("metadata", "w+") as f:
-		f.write(str(numServer) + "\n")
-		f.write(str(root['serverID']) + "\t" + root['fileName'] + "\n")
+	with open('metadata', 'w+') as f:
+		f.write(str(numServer) + '\n')
+		f.write(str(root['serverID']) + '\t' + root['fileName'] + '\n')
 		for serverID, value in fileCount.iteritems():
-			f.write(serverID + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
+			f.write(serverID + '\t' + str(value['leafCount']) + '\t' + str(value['nodeCount']) + '\n')
 
 def updateRoot(serverID, fileName):
 	global root
 	root['serverID'] = serverID
 	root['fileName'] = fileName
 	writeMetaData()
-	return "SUCCESS"
+	return 'SUCCESS'
 
 def readServerData():
 	global serverData, numServer
@@ -73,7 +76,7 @@ def readServerData():
 		score = float(score)
 		maxCap = float(maxCap)
 		port = int(port)
-		serverData[serverID] = {"serverID": serverID, "IP": IP, "port": port, "maxCap": maxCap, "score": score}
+		serverData[serverID] = {'serverID': serverID, 'IP': IP, 'port': port, 'maxCap': maxCap, 'score': score}
 	assert(len(serverData) == numServer)
 
 def getBestServer(key):
@@ -85,9 +88,9 @@ def getBestServer(key):
 	bestScore = 0
 	bestServerID = ''
 	for serverID, value in serverData.iteritems():
-		occupancy = (fileCount[serverID]["leafCount"] + fileCount[serverID]["nodeCount"])*1.0 / value["maxCap"] / (2**20)
+		occupancy = (fileCount[serverID]['leafCount'] + fileCount[serverID]['nodeCount'])*1.0 / value['maxCap'] / (2**20)
 											# maxCap is in GB. fileSize is in KB. PageSize ~ 1
-		mScore = mutualScore(value["score"], occupancy, p(key))
+		mScore = mutualScore(value['score'], occupancy, p(key))
 		if mScore > bestScore:
 			bestScore = mScore
 			bestServerID = serverID
@@ -96,33 +99,48 @@ def getBestServer(key):
 def getNewLeaf(key):
 	global fileCount
 	serverID = getBestServer(key)
-	fileCount[serverID]["leafCount"]+=1
-	newName = "L"+("%09"%fileCount[serverID]["leafCount"])
-	# TODO actual file creation may be needed
-	result = {"serverID": serverID, "fileName": newName}
+	fileCount[serverID]['leafCount']+=1
+	newName = 'L'+('%09d'%fileCount[serverID]['leafCount'])
+	result = {'serverID': serverID, 'fileName': newName}
+	query = "CREATELEAF$"+result['fileName']
+	client.request(result['serverID'], query)
 	return result
 
 def getNewNode(key):
 	global fileCount
 	serverID = getBestServer(key)
-	fileCount[serverID]["nodeCount"]+=1
-	newName = "N"+("%09"%fileCount[serverID]["nodeCount"])
-	# TODO actual file creation may be needed
-	result = {"serverID": serverID, "fileName": newName}
+	fileCount[serverID]['nodeCount']+=1
+	newName = 'N'+('%09d'%fileCount[serverID]['nodeCount'])
+	query = "CREATENODE$"+result['fileName']
+	client.request(result['serverID'], query)
+	result = {'serverID': serverID, 'fileName': newName}
 	return result
 
-def saveContent(key, value):
-	# save the value in some CDN server
-	pass
+def saveContent(key, data):
+	# TODO save the value in some CDN server
+	return 'cdn'+str(cdnCount)
+	
 
-# read contents from files servermap, metadata, scores.
-readMetaData()
-readServerData()
-print serverData
-# TODO Query handler
+def insertInTree(key, data):
+	ptr = saveContent(key, data)
+	query = 'FINDLEAF$' + str(key) + '$' + root['fileName']
+	response = client.request(root['serverID'], query)
+	response = response.split('$')
+	print response
+	query = 'INSERTINLEAF$' + response[1] + '$' + str(key) + '$' + ptr
+	response = client.request(response[0], query)
+	print response
 
-# TODO New Node Creator
 
-# call stats.py when needed 
 
-# TODO push content to CDN
+if __name__=='__main__':
+	client.readServerMap()
+	readMetaData()
+	readServerData()
+	# root = getNewLeaf(0.5)
+	# root = getNewLeaf(2.0)
+	# writeMetaData()
+	# key = input('key: ')
+	# data = raw_input('data: ')
+	insertInTree(0.55, "data")
+	# print 'Hola'

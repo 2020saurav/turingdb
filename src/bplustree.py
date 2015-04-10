@@ -1,6 +1,6 @@
 import client
 M = 10
-myServerId = 'S05'
+myServerId = 'S01'
 class Leaf(object):
 	'''
 	Leaf nodes for the bplus tree.
@@ -13,7 +13,7 @@ class Leaf(object):
 		self.ptr = []
 		for i in range(0,M):
 			self.key.append(2.000000)
-			self.ptr.append({'serverID' : 'SXX', 'fileName': 'unoccupied'})
+			self.ptr.append('unoccupied')
 		self.parent = {'serverID' : 'SXX', 'fileName': 'unoccupied'}
 		self.left = {'serverID' : 'SXX', 'fileName': 'unoccupied'}
 		self.right = {'serverID' : 'SXX', 'fileName': 'unoccupied'}
@@ -26,8 +26,7 @@ class Leaf(object):
 				f.write('{0:.6f}\t'.format(self.key[i]))
 			f.write('\n')
 			for i in range(0, M):
-				f.write(self.ptr[i]['serverID']+'\t')
-				f.write(self.ptr[i]['fileName']+'\t')
+				f.write(self.ptr[i]+'\t')
 			f.write('\n' + self.parent['serverID'] + '\t' + self.parent['fileName'])
 			f.write('\n' + self.left['serverID'] + '\t' + self.left['fileName'])
 			f.write('\n' + self.right['serverID'] + '\t' + self.right['fileName'])
@@ -39,10 +38,10 @@ class Leaf(object):
 		self.keyCount = int(lines[0])
 		self.key = (lines[1].strip().split('\t'))
 		self.key = [float(x) for x in self.key]
-		sidFiles = (lines[2].strip().split('\t'))
+		cdnFiles = (lines[2].strip().split('\t'))
 		self.ptr = []
-		for i in range(0, len(sidFiles), 2):
-			self.ptr.append({'serverID' : sidFiles[i], 'fileName': sidFiles[i+1]})
+		for i in range(0, len(cdnFiles)):
+			self.ptr.append(cdnFiles[i])
 
 		sidFile = lines[3].strip().split('\t')
 		self.parent = {'serverID' : sidFile[0], 'fileName': sidFile[1]}
@@ -468,3 +467,13 @@ def changeParent(fileName, ptr):
 	n.readFromFile(fileName)
 	n.parent = ptr
 	n.printToFile(fileName)
+
+def createLeaf(fileName):
+	l = Leaf()
+	l.printToFile(fileName)
+	return "SUCCESS"
+
+def createNode(fileName):
+	n = Node()
+	n.printToFile(fileName)
+	return "SUCCESS"
