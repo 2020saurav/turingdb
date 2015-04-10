@@ -58,6 +58,13 @@ def writeMetaData():
 		for serverID, value in fileCount.iteritems():
 			f.write(serverID + "\t" + str(value["leafCount"]) + "\t" + str(value["nodeCount"]) + "\n")
 
+def updateRoot(serverID, fileName):
+	global root
+	root['serverID'] = serverID
+	root['fileName'] = fileName
+	writeMetaData()
+	return "SUCCESS"
+
 def readServerData():
 	global serverData, numServer
 	f = open('servermap','r')
