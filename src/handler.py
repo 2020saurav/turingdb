@@ -26,9 +26,9 @@ while True:
 		sc.send(str(len(response)))
 		sc.send(response)
 	elif query[0]=='INSERTINLEAF':
-		key = float(query[1])
-		leafName = query[2]
-		ptr = query[3]
+		leafName = query[1]
+		key = float(query[2])
+		ptr = query[3] # will be object pointer.
 		response = bpt.insertInLeaf(leafName, key, ptr)
 		sc.send(str(len(response)))
 		sc.send(response)
