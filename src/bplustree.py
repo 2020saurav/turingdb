@@ -129,6 +129,36 @@ def stringifyNode(node):
 	string = string + "#" + node.parent['serverID'] + "#" + node.parent['fileName']
 	return string
 
+def destringifyLeaf(content):
+	items = content.split('#')
+	l = Leaf()
+	l.keyCount = items[0]
+	j = 1
+	for i in range(0, M):
+		l.key[i] = items[j]
+		j+=1
+	for i in range(0, M):
+		l.ptr[i] = {'serverID': items[j], 'fileName': items[j+1]}
+		j+=2
+	l.parent = {'serverID': items[j], 'fileName': items[j+1]}
+	l.left = {'serverID': items[j+2], 'fileName': items[j+3]}
+	l.right = {'serverID': items[j+4], 'fileName': items[j+5]}
+	return l
+
+def destringifyNode(content):
+	items = content.split('#')
+	n = Node() # hoping this will be returned correctly with destruction.
+	n.keyCount = items[0]
+	j = 1
+	for i in range(0, M):
+		n.key[i] = items[j]
+		j+=1
+	for i in range(0, M+1):
+		n.ptr[i] = {'serverID': items[j], 'fileName': items[j+1]}
+		j+=2
+	n.parent = {'serverID': items[j], 'fileName': items[j+1]}
+	return n
+
 def findLeaf(key, fileName):
 	'''
 	Returns the leaf file corresponding to the key.
@@ -150,7 +180,6 @@ def findLeaf(key, fileName):
 			query = 'FINDLEAF$'+str(key)+'$'+childNode['fileName']
 			result = client.request(childNode['serverID'], query) # network call
 		return result
-
 
 def splitNode(fileName):
 	'''
@@ -256,7 +285,6 @@ def splitNode(fileName):
 				# make network call here
 				query = "INSERTINNODE$" + parent['fileName'] + "$" + str(midKey) + "$" + sibling['serverID'] + "$" + sibling['fileName']
 				client.request(parent['serverID'], query)
-
 
 def insertInNode(fileName, key, ptr):
 	'''
@@ -417,13 +445,26 @@ def splitLeaf(fileName):
 				client.request(parent['serverID'], query)
 
 def saveLeaf(fileName, content):
-	pass
+	l = destringifyLeaf(content)
+	l.printToFile(fileName)
+	return "SUCCESS"
 
 def saveNode(fileName, content):
-	pass
+	n = destringifyNode(content)
+	n.printToFile(fileName)
+	return "SUCCESS"
 
 def changeLeftPtr(fileName, ptr):
-	pass
+	l = Leaf()
+	l.readFromFile(fileName)
+	l.left = ptr
+	l.printToFile(fileName)
 
 def changeParent(fileName, ptr):
-	pass
+	if isLeaf(fileName):
+		n = Leaf()
+	else:
+		n = Node()
+	n.readFromFile(fileName)
+	n.parent = ptr
+	n.printToFile(fileName)
