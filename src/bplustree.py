@@ -1,3 +1,4 @@
+import client
 M = 10
 myServerId = 'S05'
 class Leaf(object):
@@ -100,35 +101,32 @@ class Node(object):
 def isLeaf(s):
 	return s[0] == 'L'
 
-def stringify(a, b):
-	return a + "$" + b
-
 def stringifyLeaf(leaf):
 	'''
-	Takes a leaf object and convert its contents into string with $ as separator.
+	Takes a leaf object and convert its contents into string with # as separator.
 	This will make it easy and uniform way transfer data over network.
 	'''
 	string = str(leaf.keyCount)
 	for i in range(0, M):
-		string = string + "$" + str(leaf.key[i])
+		string = string + "#" + str(leaf.key[i])
 	for i in range(0, M):
-		string = string + "$" + leaf.ptr[i]['serverID'] + "$" + leaf.ptr[i]['fileName']
-	string = string + "$" + leaf.parent['serverID'] + "$" + leaf.parent['fileName']
-	string = string + "$" + leaf.left['serverID'] + "$" + leaf.left['fileName']
-	string = string + "$" + leaf.right['serverID'] + "$" + leaf.right['fileName']
+		string = string + "#" + leaf.ptr[i]['serverID'] + "#" + leaf.ptr[i]['fileName']
+	string = string + "#" + leaf.parent['serverID'] + "#" + leaf.parent['fileName']
+	string = string + "#" + leaf.left['serverID'] + "#" + leaf.left['fileName']
+	string = string + "#" + leaf.right['serverID'] + "#" + leaf.right['fileName']
 	return string
 
 def stringifyNode(node):
 	'''
-	Takes a node object and converts its content into string with $ as separator.
+	Takes a node object and converts its content into string with # as separator.
 	This will make it easy and uniform way transfer data over network.
 	'''
 	string = str(node.keyCount)
 	for i in range(0, M):
-		string = string + "$" + str(node.key[i])
+		string = string + "#" + str(node.key[i])
 	for i in range(0, M+1):
-		string = string + "$" + node.ptr[i]['serverID'] + "$" + node.ptr[i]['fileName']
-	string = string + "$" + node.parent['serverID'] + "$" + node.parent['fileName']
+		string = string + "#" + node.ptr[i]['serverID'] + "#" + node.ptr[i]['fileName']
+	string = string + "#" + node.parent['serverID'] + "#" + node.parent['fileName']
 	return string
 
 def findLeaf(key, fileName):
@@ -418,7 +416,14 @@ def splitLeaf(fileName):
 				query = "INSERTINNODE$" + parent['fileName'] + "$" + str(midKey) + "$" + sibling['serverID'] + "$" + sibling['fileName']
 				client.request(parent['serverID'], query)
 
-# a = Leaf()
-# a.printToFile('whatever')
-# a.readFromFile('whatever')
-# print a.parent
+def saveLeaf(fileName, content):
+	pass
+
+def saveNode(fileName, content):
+	pass
+
+def changeLeftPtr(fileName, ptr):
+	pass
+
+def changeParent(fileName, ptr):
+	pass

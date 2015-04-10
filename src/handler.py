@@ -21,18 +21,60 @@ while True:
 
 	if query[0]=='FINDLEAF':
 		key = float(query[1])
-		node = query[2]
-		response = bpt.findLeaf(key, node)
+		fileName = query[2]
+		response = bpt.findLeaf(key, fileName)
 		sc.send(str(len(response)))
 		sc.send(response)
+
 	elif query[0]=='INSERTINLEAF':
+		# will be sent by central server
 		leafName = query[1]
 		key = float(query[2])
 		ptr = query[3] # will be object pointer.
 		response = bpt.insertInLeaf(leafName, key, ptr)
 		sc.send(str(len(response)))
 		sc.send(response)
+
+	elif query[0]=='INSERTINNODE':
+		nodeName = query[1]
+		key = float(query[2])
+		serverID = query[3]
+		fileName = query[4]
+		ptr = {'serverID': serverID, 'fileName': fileName}
+		response = bpt.insertInNode(nodeName, key, ptr)
+		sc.send(str(len(response)))
+		sc.send(response)
+
+	elif query[0]=='SAVELEAF':
+		fileName = query[1]
+		content = query[2]
+		response = saveLeaf(fileName, content)
+		sc.send(str(len(response)))
+		sc.send(response)
+
+	elif query[0]=='SAVENODE':
+		fileName = query[1]
+		content = query[2]
+		response = saveNode(fileName, content)
+		sc.send(str(len(response)))
+		sc.send(response)
+
+	elif query[0]=='CHANGELEFTPTR':
+		fileName = query[1]
+		ptr = {'serverID': query[2], 'fileName': query[3]}
+		response = changeLeftPtr(fileName, ptr)
+		sc.send(str(len(response)))
+		sc.send(response)
+
+	elif query[0]=='CHANGEPARENT':
+		fileName = query[1]
+		ptr = {'serverID': query[2], 'fileName': query[3]}
+		response = changeParent(fileName, ptr)
+		sc.send(str(len(response)))
+		sc.send(response)
+
 	else:
-		print 'Unknown Query'
+		sc.send('5')
+		sc.send('ERROR')
 	sc.close()
 s.close()
