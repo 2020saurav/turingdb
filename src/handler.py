@@ -6,12 +6,14 @@ and appropriate function in bpt.py will be called
 import socket
 import sys
 import time
-import bplustree as bpt
+import bplustree
 
 s = socket.socket()
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(('',2021))
 s.listen(10)
+
+bpt = bplustree.BPT()
 
 while True:
 	sc, address = s.accept()

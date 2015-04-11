@@ -1,7 +1,7 @@
 '''
 Handler of central server to listen and respond to socket requests.
 Network receieved queries will be parsed here,
-and appropriate function in main.py will be called
+and appropriate function in CentralServer.py will be called
 '''
 import socket
 import sys
@@ -12,6 +12,8 @@ s = socket.socket()
 s.bind(('',2020))
 s.listen(10)
 
+CentralServer = main.Main()
+
 while True:
 	sc, address = s.accept()
 	# print address
@@ -21,30 +23,37 @@ while True:
 
 	if query[0]=='NEWLEAF':
 		key = float(query[1])
-		newLeaf = main.getNewLeaf(key)
+		newLeaf = CentralServer.getNewLeaf(key)
 		response = newLeaf['serverID'] + '$' + newLeaf['fileName']
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
 	elif query[0]=='NEWNODE':
 		key = float(query[1])
-		newNode = main.getNewNode(key)
+		newNode = CentralServer.getNewNode(key)
 		response = newNode['serverID'] + '$' + newNode['fileName']
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
 	elif query[0]=='WHOISROOT':
-		response = main.root['serverID'] + "$" + main.root['fileName']
+		response = CentralServer.root['serverID'] + "$" + CentralServer.root['fileName']
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
 	elif query[0]=='CHANGEROOT':
 		serverID = query[1]
 		fileName = query[2]
-		response = main.updateRoot(serverID, fileName)
+		response = CentralServer.updateRoot(serverID, fileName)
 		sc.send(str('%05d'%len(response)))
-		sc.send(response)		
+		sc.send(response)
 
+	elif query[0]=='INSERT':
+		key = float(query[1])
+		data = query[2]
+		response = CentralServer.insertInTree(key, data)	
+		sc.send(str('%05d'%len(response)))
+		sc.send(response)
+		
 	else:
 		sc.send("5")
 		sc.send("ERROR")

@@ -3,7 +3,6 @@ import sys
 import pprint
 
 serverDetails = dict()
-centralServerID = 'S00'
 
 def readServerMap():
 	global serverDetails

@@ -1,0 +1,11 @@
+TODO
+* sample input
+* test splitting
+* randomize best server for now
+* point queries
+* correctness
+* math/query analytics
+* more data sets
+* other queries : knn, range, window
+* actual testing
+* report
