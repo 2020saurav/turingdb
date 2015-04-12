@@ -12,8 +12,8 @@ def readServerMap():
 		score = float(score)
 		maxCap = float(maxCap)
 		port = int(port)
-		serverDetails[serverID] = {"serverID": serverID, "IP": IP, "port": port, "maxCap": maxCap, "score": score}
-	
+		serverDetails[serverID] = {'serverID': serverID, 'IP': IP, 'port': port, 'maxCap': maxCap, 'score': score}
+
 def request(serverID, query):
 	s = socket.socket()
 	server = serverDetails[serverID]
@@ -25,7 +25,7 @@ def request(serverID, query):
 		responseLength = int(s.recv(5))
 		response = s.recv(responseLength)
 	else:
-		response = "SERVER_NOT_FOUND"
+		response = 'SERVER_NOT_FOUND'
 	s.close()
 	return response
 

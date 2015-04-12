@@ -89,7 +89,7 @@ while True:
 		sc.send(response)
 
 	else:
-		sc.send('5')
+		sc.send('00005')
 		sc.send('ERROR')
 	sc.close()
 s.close()

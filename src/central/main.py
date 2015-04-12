@@ -19,16 +19,16 @@ import client
 # The score may be determined using network time, processing speed and other overheads
 # This file will be mirrored in all the servers and updated anytime a change is seen.
 #
-# * metadata will contain information about current root and count of files 
+# * metadata will contain information about current root and count of files
 # for each server for internal nodes and leaf nodes to allocate new name for files.
-# First Line 	: <Number of servers>
-# Second Line 	: <ServerID of server which has root> <Name of file which is the root>
+# First Line    : <Number of servers>
+# Second Line   : <ServerID of server which has root> <Name of file which is the root>
 # Third..n Line : <ServerID> <LeafCount> <NodeCount>
 #
 # * score will be used to collect statistics from query data. This can be used to learn
 # patterns in query data and its response and accordingly migrate/rebuild the structure
 # to optimize running time of queries.
-#
+
 class Main:
 	def __init__(self):
 		self.numServer = 0
@@ -102,7 +102,7 @@ class Main:
 		self.fileCount[serverID]['leafCount']+=1
 		newName = 'L'+('%09d'%self.fileCount[serverID]['leafCount'])
 		result = {'serverID': serverID, 'fileName': newName}
-		query = "CREATELEAF$"+result['fileName']
+		query = 'CREATELEAF$'+result['fileName']
 		client.request(result['serverID'], query)
 		return result
 
@@ -112,7 +112,7 @@ class Main:
 		serverID = self.getBestServer(key)
 		self.fileCount[serverID]['nodeCount']+=1
 		newName = 'N'+('%09d'%self.fileCount[serverID]['nodeCount'])
-		query = "CREATENODE$"+result['fileName']
+		query = 'CREATENODE$'+result['fileName']
 		client.request(result['serverID'], query)
 		result = {'serverID': serverID, 'fileName': newName}
 		return result
@@ -120,7 +120,7 @@ class Main:
 	def saveContent(self, key, data):
 		# TODO save the value in some CDN server
 		return 'cdn'+str(self.cdnCount)
-		
+
 
 	def insertInTree(self, key, data):
 		ptr = self.saveContent(key, data)
@@ -129,20 +129,20 @@ class Main:
 		response = response.split('$')
 		query = 'INSERTINLEAF$' + response[1] + '$' + str(key) + '$' + ptr
 		response = client.request(response[0], query)
-		return "SUCCESS"
+		return 'SUCCESS'
 
 	# if __name__=='__main__':
-	# 	# client.readServerMap()
-	# 	# readMetaData()
-	# 	# readServerData()
-	# 	root = getNewLeaf(0.5)
-	# 	writeMetaData()
-	# 	f = open('../small.in').readlines()
-	# 	for line in f:
-	# 		line = line.strip().split()
-	# 		insertInTree(float(line[0]), line[1])
-	# 	writeMetaData()
+	#       # client.readServerMap()
+	#       # readMetaData()
+	#       # readServerData()
+	#       root = getNewLeaf(0.5)
+	#       writeMetaData()
+	#       f = open('../small.in').readlines()
+	#       for line in f:
+	#               line = line.strip().split()
+	#               insertInTree(float(line[0]), line[1])
+	#       writeMetaData()
 		# key = input('key: ')
 		# data = raw_input('data: ')
-		# insertInTree(0.55, "data")
+		# insertInTree(0.55, 'data')
 		# print 'Hola'

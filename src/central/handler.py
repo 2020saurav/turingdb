@@ -36,7 +36,7 @@ while True:
 		sc.send(response)
 
 	elif query[0]=='WHOISROOT':
-		response = CentralServer.root['serverID'] + "$" + CentralServer.root['fileName']
+		response = CentralServer.root['serverID'] + '$' + CentralServer.root['fileName']
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
@@ -50,13 +50,13 @@ while True:
 	elif query[0]=='INSERT':
 		key = float(query[1])
 		data = query[2]
-		response = CentralServer.insertInTree(key, data)	
+		response = CentralServer.insertInTree(key, data)
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
-		
+
 	else:
-		sc.send("5")
-		sc.send("ERROR")
-		
+		sc.send('00005')
+		sc.send('ERROR')
+
 	sc.close()
 s.close()
