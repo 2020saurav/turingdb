@@ -22,6 +22,7 @@ class BPT:
 		
 		def printToFile(self, fileName):
 			# to print node content to file.
+			fileName = 'data/'+fileName
 			with open(fileName, 'w+') as f:
 				f.write(str(self.keyCount)+'\n')
 				for i in range(0, M):
@@ -35,6 +36,7 @@ class BPT:
 				# TODO append garbage
 
 		def readFromFile(self, fileName):
+			fileName = 'data/'+fileName
 			f = open(fileName, 'r')
 			lines = f.readlines()
 			self.keyCount = int(lines[0])
@@ -71,6 +73,7 @@ class BPT:
 		
 		def printToFile(self, fileName):
 			# to print node content to file.
+			fileName = 'data/'+fileName
 			with open(fileName, 'w+') as f:
 				f.write(str(self.keyCount)+'\n')
 				for i in range(0, M):
@@ -85,6 +88,7 @@ class BPT:
 				f.write('\n' + self.parent['serverID'] + '\t' + self.parent['fileName'])
 
 		def readFromFile(self, fileName):
+			fileName = 'data/'+fileName
 			f = open(fileName, 'r')
 			lines = f.readlines()
 			self.keyCount = int(lines[0])
@@ -213,7 +217,7 @@ class BPT:
 		for i in range(0, sib.keyCount):
 			sib.key[i] = n.key[i + M/2 + 1]
 			sib.ptr[i] = n.ptr[i + M/2 + 1]
-
+		sib.ptr[sib.keyCount] = n.ptr[M]
 		# children need to be told about their new parent
 		if self.isLeaf(sib.ptr[0]['fileName']):
 			child = self.Leaf()
@@ -265,7 +269,7 @@ class BPT:
 			if sibling['serverID'] == myServerId:
 				sib.printToFile(sibling['fileName'])
 			else:
-				query = 'SAVENODE$' + sibling['fileName'] + '$' + self.stringifyLeaf(sib)
+				query = 'SAVENODE$' + sibling['fileName'] + '$' + self.stringifyNode(sib)
 				response = client.request(sibling['serverID'], query)
 		else:
 			# this leaf is not root
@@ -275,7 +279,7 @@ class BPT:
 			if sibling['serverID'] == myServerId:
 				sib.printToFile(sibling['fileName'])
 			else:
-				query = 'SAVENODE$' + sibling['fileName'] + '$' + self.stringifyLeaf(sib)
+				query = 'SAVENODE$' + sibling['fileName'] + '$' + self.stringifyNode(sib)
 				response = client.request(sibling['serverID'], query)
 				# network call to save sibling file in its host data server
 				# now insert midKey | pointer in parent
