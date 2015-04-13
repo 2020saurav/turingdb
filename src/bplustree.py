@@ -136,7 +136,7 @@ class BPT:
 		l.keyCount = items[0]
 		j = 1
 		for i in range(0, M):
-			l.key[i] = items[j]
+			l.key[i] = float(items[j])
 			j+=1
 		for i in range(0, M):
 			l.ptr[i] = {'serverID': items[j], 'fileName': items[j+1]}
@@ -148,11 +148,11 @@ class BPT:
 
 	def destringifyNode(self, content):
 		items = content.split('#')
-		n = Node() # hoping this will be returned correctly with destruction.
+		n = self.Node() # hoping this will be returned correctly with destruction.
 		n.keyCount = items[0]
 		j = 1
 		for i in range(0, M):
-			n.key[i] = items[j]
+			n.key[i] = float(items[j])
 			j+=1
 		for i in range(0, M+1):
 			n.ptr[i] = {'serverID': items[j], 'fileName': items[j+1]}
@@ -253,7 +253,7 @@ class BPT:
 			newRoot.keyCount = 1
 			# save these info about root node
 			# TODO : can save a network call here if same serverID
-			query = 'SAVENODE$' + root['fileName'] + '$' + stringifyNode(newRoot)
+			query = 'SAVENODE$' + root['fileName'] + '$' + self.stringifyNode(newRoot)
 			response = client.request(root['serverID'], query)
 			# ask central server to change the root.
 			query = 'CHANGEROOT$' + root['serverID'] + '$' + root['fileName']
@@ -265,7 +265,7 @@ class BPT:
 			if sibling['serverID'] == myServerId:
 				sib.printToFile(sibling['fileName'])
 			else:
-				query = 'SAVENODE$' + sibling['fileName'] + '$' + stringifyLeaf(sib)
+				query = 'SAVENODE$' + sibling['fileName'] + '$' + self.stringifyLeaf(sib)
 				response = client.request(sibling['serverID'], query)
 		else:
 			# this leaf is not root
@@ -275,7 +275,7 @@ class BPT:
 			if sibling['serverID'] == myServerId:
 				sib.printToFile(sibling['fileName'])
 			else:
-				query = 'SAVENODE$' + sibling['fileName'] + '$' + stringifyLeaf(sib)
+				query = 'SAVENODE$' + sibling['fileName'] + '$' + self.stringifyLeaf(sib)
 				response = client.request(sibling['serverID'], query)
 				# network call to save sibling file in its host data server
 				# now insert midKey | pointer in parent
@@ -388,7 +388,7 @@ class BPT:
 				response = client.query(right['serverID'], query)
 
 		n.right = sibling
-		sib.left = {'serverID': myServerId, 'fileName': leafName}
+		sib.left = {'serverID': myServerId, 'fileName': fileName}
 		# left/right things done. parent setting done below
 		# If current leaf is root, handle separately. Happens in the beginning only once
 		query = 'WHOISROOT'
@@ -412,7 +412,7 @@ class BPT:
 			newRoot.keyCount = 1
 			# save these info about root node
 			# TODO : can save a network call here if same serverID
-			query = 'SAVENODE$' + root['fileName'] + '$' + stringifyNode(newRoot)
+			query = 'SAVENODE$' + root['fileName'] + '$' + self.stringifyNode(newRoot)
 			response = client.request(root['serverID'], query)
 			# ask central server to change the root.
 			query = 'CHANGEROOT$' + root['serverID'] + '$' + root['fileName']
@@ -424,7 +424,7 @@ class BPT:
 			if sibling['serverID'] == myServerId:
 				sib.printToFile(sibling['fileName'])
 			else:
-				query = 'SAVELEAF$' + sibling['fileName'] + '$' + stringifyLeaf(sib)
+				query = 'SAVELEAF$' + sibling['fileName'] + '$' + self.stringifyLeaf(sib)
 				response = client.request(sibling['serverID'], query)
 		else:
 			# this leaf is not root
@@ -434,7 +434,7 @@ class BPT:
 			if sibling['serverID'] == myServerId:
 				sib.printToFile(sibling['fileName'])
 			else:
-				query = 'SAVELEAF$' + sibling['fileName'] + '$' + stringifyLeaf(sib)
+				query = 'SAVELEAF$' + sibling['fileName'] + '$' + self.stringifyLeaf(sib)
 				response = client.request(sibling['serverID'], query)
 				# network call to save sibling file in its host data server
 				# now insert midKey | pointer in parent

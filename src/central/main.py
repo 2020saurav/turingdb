@@ -112,9 +112,9 @@ class Main:
 		serverID = self.getBestServer(key)
 		self.fileCount[serverID]['nodeCount']+=1
 		newName = 'N'+('%09d'%self.fileCount[serverID]['nodeCount'])
+		result = {'serverID': serverID, 'fileName': newName}
 		query = 'CREATENODE$'+result['fileName']
 		client.request(result['serverID'], query)
-		result = {'serverID': serverID, 'fileName': newName}
 		return result
 
 	def saveContent(self, key, data):

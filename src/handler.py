@@ -3,23 +3,20 @@ Handler of data server to listen and respond to socket requests.
 Network receieved queries will be parsed here,
 and appropriate function in bpt.py will be called
 '''
-import socket
+from socket import *
 import sys
 import time
 import bplustree
-
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(('',2021))
-s.listen(10)
+import thread
 
 bpt = bplustree.BPT()
 
-while True:
-	sc, address = s.accept()
-	# print address
-	qlen = int(sc.recv(5))
+def handler(sc, address):
+	res = sc.recv(5)
+	print res,
+	qlen = int(res)
 	query = sc.recv(qlen)
+	print query
 	query = query.split('$')
 
 	if query[0]=='FINDLEAF':
@@ -92,4 +89,13 @@ while True:
 		sc.send('00005')
 		sc.send('ERROR')
 	sc.close()
-s.close()
+
+if __name__=='__main__':
+	s = socket(AF_INET, SOCK_STREAM)
+	s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+	s.bind(('',2021))
+	s.listen(10)
+	while True:
+		sc, address = s.accept()
+		thread.start_new_thread(handler, (sc, address))
+	s.close()
