@@ -25,10 +25,10 @@ def request(serverID, query):
 		# wait for response
 		responseLength = int(s.recv(5))
 		response = s.recv(responseLength)
-        else:
+	else:
 		response = 'SERVER_NOT_FOUND'
-        s.close()
-        return response
+	s.close()
+	return response
 
 readServerMap()
 # print serverDetails['S02']

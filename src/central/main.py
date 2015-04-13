@@ -7,6 +7,7 @@ from stats import p
 from stats import data
 from stats import mutualScore
 import client
+import random
 ######### File Content Structure for servermap, metadata and score  ################
 #
 # * Leaf Node or Internal Node (called 'entity' henceforth) will be represented
@@ -93,17 +94,18 @@ class Main:
 			if mScore > bestScore:
 				bestScore = mScore
 				bestServerID = serverID
-		return bestServerID
+		return 'S0' + str(random.randint(1,3))
 
 	def getNewLeaf(self, key):
 		self.readMetaData()
 		self.readServerData()
 		serverID = self.getBestServer(key)
-		self.fileCount[serverID]['leafCount']+=1
+		self.fileCount[serverID]['leafCount'] += 1
 		newName = 'L'+('%09d'%self.fileCount[serverID]['leafCount'])
 		result = {'serverID': serverID, 'fileName': newName}
 		query = 'CREATELEAF$'+result['fileName']
 		client.request(result['serverID'], query)
+		self.writeMetaData()
 		return result
 
 	def getNewNode(self, key):
@@ -115,6 +117,7 @@ class Main:
 		result = {'serverID': serverID, 'fileName': newName}
 		query = 'CREATENODE$'+result['fileName']
 		client.request(result['serverID'], query)
+		self.writeMetaData()
 		return result
 
 	def saveContent(self, key, data):

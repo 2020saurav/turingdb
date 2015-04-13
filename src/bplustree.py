@@ -111,7 +111,7 @@ class BPT:
 		for i in range(0, M):
 			string = string + '#' + str(leaf.key[i])
 		for i in range(0, M):
-			string = string + '#' + leaf.ptr[i]['serverID'] + '#' + leaf.ptr[i]['fileName']
+			string = string + '#' + leaf.ptr[i]
 		string = string + '#' + leaf.parent['serverID'] + '#' + leaf.parent['fileName']
 		string = string + '#' + leaf.left['serverID'] + '#' + leaf.left['fileName']
 		string = string + '#' + leaf.right['serverID'] + '#' + leaf.right['fileName']
@@ -139,8 +139,8 @@ class BPT:
 			l.key[i] = float(items[j])
 			j+=1
 		for i in range(0, M):
-			l.ptr[i] = {'serverID': items[j], 'fileName': items[j+1]}
-			j+=2
+			l.ptr[i] = items[j]
+			j+=1
 		l.parent = {'serverID': items[j], 'fileName': items[j+1]}
 		l.left = {'serverID': items[j+2], 'fileName': items[j+3]}
 		l.right = {'serverID': items[j+4], 'fileName': items[j+5]}
@@ -307,7 +307,7 @@ class BPT:
 		n.key[position] = key
 		n.ptr[position + 1] = ptr
 		n.keyCount += 1
-		n.printToFile(leafName)
+		n.printToFile(fileName)
 
 		if n.keyCount == M:
 			self.splitNode(fileName)
@@ -385,7 +385,7 @@ class BPT:
 				# its left pointer to point to sibling.
 				# correct sib.right to point to this
 				query = 'CHANGELEFTPTR$' + right['fileName'] + '$' + sibling['serverID'] + '$' + sibling['fileName']
-				response = client.query(right['serverID'], query)
+				response = client.request(right['serverID'], query)
 
 		n.right = sibling
 		sib.left = {'serverID': myServerId, 'fileName': fileName}
