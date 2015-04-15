@@ -4,6 +4,8 @@ import pprint
 import random
 import time
 
+eps = 1e-6
+
 def request(query):
 	s = socket.socket()
 	server = {'IP': '127.0.0.1', 'port': 2020}
@@ -30,16 +32,38 @@ def window1(left, right):
 if __name__=='__main__':
 	for i in range(0, 100):
 		insert(random.random(), 'hello world')
-		time.sleep(0.5)
+
 	while True:
-		choice = input('CHOICE (INSERT:1  or  WIN QUERY:2 :')
-		if choice == 1:
+		choice = input('CHOICE (INSERT:0, POINTQUERY:1, RANGEQUERY: 2, KNNQUERY: 3, WINDOWQUERY:4) :')
+		
+		if choice == 0:
 			key = input('KEY: ')
 			value = raw_input('VALUE: ')
 			response = insert(key, value)
 			print response
+
+		elif choice == 1:
+			left = input('KEY: ')
+			right = left + eps
+			response = window1(left, right)
+			print response
+
 		elif choice == 2:
+			center = input('CENTER: ')
+			radius = input('RADIUS: ')
+			left = center - radius
+			right = center + radius
+			response = window1(left, right)
+			print response
+
+		elif choice == 3:
+			print 'Contact proneet11@gmail.com'
+
+		elif choice == 4:
 			left = input('LEFT KEY: ')
 			right = input('RIGHT KEY: ')
 			response = window1(left, right)
 			print response
+		
+		else:
+			break
