@@ -85,6 +85,14 @@ def handler(sc, address):
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
+	elif query[0]=='WINDOWQUERY1':
+		fileName = query[1]
+		left = float(query[2])
+		right = float(query[3])
+		response = bpt.windowQuery1(fileName, left, right)
+		sc.send(str('%05d'%len(response)))
+		sc.send(response)		
+
 	else:
 		sc.send('00005')
 		sc.send('ERROR')

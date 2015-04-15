@@ -164,6 +164,16 @@ class BPT:
 		n.parent = {'serverID': items[j], 'fileName': items[j+1]}
 		return n
 
+	def stringifyArray(self, array):
+		ans = ''
+		if len(array) == 0:
+			return ans
+		ans = str(array[0])
+		for i in range(1, len(array)):
+			ans = ans + '$' + str(array[i])
+		return ans
+
+
 	def findLeaf(self, key, fileName):
 		'''
 		Returns the leaf file corresponding to the key.
@@ -487,3 +497,33 @@ class BPT:
 		n = self.Node()
 		n.printToFile(fileName)
 		return 'SUCCESS'
+
+	def windowQuery1(self, fileName, left, right):
+		l = self.Leaf()
+		l.readFromFile(fileName)
+		ans = []
+		# possible optimization for Window2:
+		# before starting to do anything, make network call to siblings
+		start = 0
+		while l.key[start] < left and start < l.keyCount:
+			start += 1
+		for i in range(start, l.keyCount):
+			if l.key[i] < right:
+				ans.append(l.key[i])
+			else:
+				return self.stringifyArray(ans)
+
+		sibling = l.right
+		query = 'WINDOWQUERY1$' + sibling['fileName'] + '$' + str(left) + '$' + str(right)
+		# changing left won't make any difference
+		if sibling['serverID'] != 'SXX':
+			response = client.request(sibling['serverID'], query)
+		else:
+			response = ''
+
+		if response != '': # do not merge with above if-else. response may also be '' if sibling has no such key 
+			return self.stringifyArray(ans) + '$' + response
+		else:
+			return self.stringifyArray(ans)
+
+

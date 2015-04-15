@@ -134,6 +134,15 @@ class Main:
 		response = client.request(response[0], query)
 		return 'SUCCESS'
 
+	def windowQuery1(self, left, right):
+		# left is included, right is not.
+		query = 'FINDLEAF$' + str(left) + '$' + self.root['fileName']
+		response = client.request(self.root['serverID'], query)
+		response = response.split('$')
+		query = 'WINDOWQUERY1$' + response[1] + '$' + str(left) + '$' + str(right)
+		response = client.request(response[0], query)
+		return response
+
 	# if __name__=='__main__':
 	#       # client.readServerMap()
 	#       # readMetaData()

@@ -52,6 +52,14 @@ def handler(sc, address):
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
 
+	elif query[0]=='WINDOW1':
+		# Window 1 : Find Left -> This data server will complete whole task by traversing linked list
+		left = float(query[1])
+		right = float(query[2])
+		response = CentralServer.windowQuery1(left, right)
+		sc.send(str('%05d'%len(response)))
+		sc.send(response)
+		
 	else:
 		sc.send('00005')
 		sc.send('ERROR')
