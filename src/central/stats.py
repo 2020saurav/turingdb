@@ -1,3 +1,4 @@
+import sys
 # To use scores file to make calculations
 data = []
 # data is an array of real numbers representing scaled count of number of times a key has been queried
@@ -36,3 +37,68 @@ def mutualScore(score, occupancy, probability):
 	mScore = penalize(mScore, occupancy)
 	return mScore
 
+def trainModel(queryFile):
+	divisions = 1000000
+	pointData = [0] * (divisions+1)
+	rangeData = [0] * (divisions+1)
+	f = open(queryFile)
+	lines = f.readlines()
+	f.close()
+	for line in lines:
+		line = line.strip().split(' ')
+
+		if line[0] == '0': # INSERT QUERY
+			pass
+
+		elif line[0] == '1': # POINT QUERY
+			point = int(float(line[1])*divisions)
+			pointData[point] += 1
+
+		elif line[0] == '2': # RANGE QUERY
+			center = int(float(line[1])*divisions)
+			radius = int(float(line[2])*divisions)
+			left = max(0, center-radius)
+			right = min(divisions, center+radius)
+			rangeData[left] += 1
+			rangeData[right] -= 1
+
+		elif line[0] == '3': # kNN QUERY
+			center = int(float(line[1])*divisions)
+			k = int(line[2])
+			# arbitrary 2000. Can be made f(k, total_points)
+			left = max(0, center-2000)
+			right = min(divisions, center+2000)
+			rangeData[left] += 1
+			rangeData[right] -= 1
+
+		elif line[0] == '4': # WINDOW QUERY
+			left = int(float(line[1])*divisions)
+			right = int(float(line[2])*divisions)
+			left = max(0, left)
+			right = min(divisions, right)
+			rangeData[left] += 1
+			rangeData[right] -= 1
+			
+		else:
+			print "Unknown Query"
+			sys.exit()
+	
+	for i in range(1, divisions):
+		rangeData[i] += rangeData[i-1]
+
+	for i in range(0, divisions):
+		rangeData[i] += pointData[i]
+
+	f = open('train.data', 'w+')
+	for i in range(0, divisions):
+		f.write(str(rangeData[i])+'\n')
+	f.close()
+
+
+
+
+if __name__ == '__main__':
+	choice = input('Choice: (1) Train on query: ')
+	if choice == 1:
+		queryFile = raw_input('Query Filepath: ')
+		trainModel(queryFile)
