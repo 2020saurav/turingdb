@@ -1,6 +1,5 @@
 import sys
 # To use scores file to make calculations
-data = []
 # data is an array of real numbers representing scaled count of number of times a key has been queried
 # Suppose key range is 0.000000000 - 1.000000000 [each key will be unique] 
 # Assuming some localization in data, we will pick 1 out of 1000 keys (so as to make this array of size 10**6) as representative.
@@ -9,11 +8,15 @@ data = []
 #
 # data.append()
 maxVal = 1e-9
+divisions = 1000000
+data = [0]*(divisions+1)
+
 def p(key):
-	global data
-	# get corresponding scaled probability for this key
-	# keep updating maxVal, and return val/maxVal for normalized [0,1] range output
-	return 1/maxVal
+	# normalized value for occurence of this key
+	index = int(key*divisions)
+	if index > divisions:
+		index = 0
+	return data[index]
 
 def magic1(score, probability):
 	# z = (x-0.5)*(y-0.5)
@@ -29,7 +32,7 @@ def magic2(score, probability):
 	return 1
 
 def penalize(score, occupancy):
-	# add weights
+	# add weights to these parameters for proper scaling : try empirically
 	return score - occupancy
 
 def mutualScore(score, occupancy, probability):
@@ -38,7 +41,6 @@ def mutualScore(score, occupancy, probability):
 	return mScore
 
 def trainModel(queryFile):
-	divisions = 1000000
 	pointData = [0] * (divisions+1)
 	rangeData = [0] * (divisions+1)
 	f = open(queryFile)
@@ -94,7 +96,19 @@ def trainModel(queryFile):
 		f.write(str(rangeData[i])+'\n')
 	f.close()
 
+def initialize():
+	global data, maxVal
+	f = open('train.data')
+	i = 0
+	lines = f.readlines()
 
+	for line in lines:
+		value = int(line.strip())
+		data[i] = value
+		maxVal = max(maxVal, value)
+
+	for i in range(0, divisions):
+		data[i] = data[i]*1.0/maxVal
 
 
 if __name__ == '__main__':

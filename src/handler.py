@@ -9,9 +9,13 @@ import time
 import bplustree
 import thread
 
+port = 2021
+delay = 0.005
+
 bpt = bplustree.BPT()
 
 def handler(sc, address):
+	time.sleep(delay) # to mimic network delay
 	res = sc.recv(5)
 	print res,
 	qlen = int(res)
@@ -101,7 +105,7 @@ def handler(sc, address):
 if __name__=='__main__':
 	s = socket(AF_INET, SOCK_STREAM)
 	s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-	s.bind(('',2021))
+	s.bind(('',port))
 	s.listen(10)
 	while True:
 		sc, address = s.accept()

@@ -3,9 +3,7 @@
 - To create new nodes (internal and leaf) in best possible server and returning it to caller.
 - To keep the content/object in CDN server using its key
 '''
-from stats import p
-from stats import data
-from stats import mutualScore
+from stats import *
 import client
 import random
 ######### File Content Structure for servermap, metadata and score  ################
@@ -32,6 +30,7 @@ import random
 
 class Main:
 	def __init__(self):
+		initialize() # loads trained model based on queries.
 		self.numServer = 0
 		self.root = dict() # (serverID, fileName)
 		self.fileCount = dict() # { serverID:{'leafCount':lc, 'nodeCount':nc}, ...}
