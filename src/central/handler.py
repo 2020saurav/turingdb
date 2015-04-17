@@ -62,6 +62,13 @@ def handler(sc, address):
 		response = CentralServer.windowQuery1(left, right)
 		sc.send(str('%05d'%len(response)))
 		sc.send(response)
+
+	elif query[0]=='KNN':
+		center = float(query[1])
+		k = int(query[2])
+		response = CentralServer.knnQuery(center, k)
+		sc.send(str('%05d'%len(response)))
+		sc.send(response)
 		
 	else:
 		sc.send('00005')

@@ -1,5 +1,5 @@
 import client
-M = 10
+M = 40
 myServerId = 'S01'
 centralServerID = client.centralServerID
 class BPT:
@@ -517,7 +517,10 @@ class BPT:
 		query = 'WINDOWQUERY1$' + sibling['fileName'] + '$' + str(left) + '$' + str(right)
 		# changing left won't make any difference
 		if sibling['serverID'] != 'SXX':
-			response = client.request(sibling['serverID'], query)
+			if sibling['serverID'] == myServerId:
+				response = self.windowQuery1(sibling['fileName'], left, right)
+			else:
+				response = client.request(sibling['serverID'], query)
 		else:
 			response = ''
 
@@ -526,4 +529,100 @@ class BPT:
 		else:
 			return self.stringifyArray(ans)
 
+	def knnQuery(self, fileName, center, k):
+		l = self.Leaf()
+		l.readFromFile(fileName)
+		ans = []
+		start = 0
+		while l.key[start] < center and start < l.keyCount:
+			start += 1
 
+		for i in range(0, start):
+			ans.append((abs(center-l.key[i]),l.key[i]))
+
+		leftSibling = l.left
+		remaining = k - len(ans)
+		query = 'PREVKEYS$' + leftSibling['fileName'] + '$' + str(remaining)
+		if remaining > 0 and leftSibling['serverID'] != 'SXX':
+			if leftSibling['serverID'] == myServerId:
+				leftKeys = self.prevKeys(leftSibling['fileName'], remaining)
+			else:
+				leftKeys = client.request(leftSibling['serverID'], query)
+			leftKeys = leftKeys.split('$')
+			for key in leftKeys:
+				key = float(key)
+				ans.append((abs(key-center), key))	
+
+		rightCount = 0
+		for i in range(start, l.keyCount):
+			ans.append((abs(center-l.key[i]),l.key[i]))
+			rightCount += 1
+
+		remaining = k - rightCount
+		rightSibling = l.right
+		query = 'NEXTKEYS$' + rightSibling['fileName'] + '$' + str(remaining)
+
+		if remaining > 0 and rightSibling['serverID'] != 'SXX':
+			if rightSibling['serverID'] == myServerId:
+				rightKeys = self.nextKeys(rightSibling['fileName'], remaining)
+			else:
+				rightKeys = client.request(rightSibling['serverID'], query)
+			
+			rightKeys = rightKeys.split('$')
+			for key in rightKeys:
+				key = float(key)
+				ans.append((abs(key-center), key))
+
+		ans = sorted(ans)
+		final = []
+		for key in ans:
+			final.append(key[1])
+		final =  final[0:k]
+		return self.stringifyArray(final)
+
+	def prevKeys(self, fileName, n):
+		l = self.Leaf()
+		l.readFromFile(fileName)
+		ans = []
+		
+		for i in range(0, l.keyCount):
+			ans.append(l.key[i])
+		remaining = n - l.keyCount
+		leftSibling = l.left
+		query = 'PREVKEYS$' + leftSibling['fileName'] + '$' + str(remaining)
+		
+		if remaining > 0 and leftSibling['serverID'] != 'SXX':
+			if leftSibling['serverID'] == myServerId:
+				leftKeys = self.prevKeys(leftSibling['fileName'], remaining)
+			else:
+				leftKeys = client.request(leftSibling['serverID'], query)
+			leftKeys = leftKeys.split('$')
+			for key in leftKeys:
+				key = float(key)
+				ans.append(key)
+
+		return self.stringifyArray(ans)
+
+
+	def nextKeys(self, fileName, n):
+		l = self.Leaf()
+		l.readFromFile(fileName)
+		ans = []
+		
+		for i in range(0, l.keyCount):
+			ans.append(l.key[i])
+		remaining = n - l.keyCount
+		rightSibling = l.right
+		query = 'NEXTKEYS$' + rightSibling['fileName'] + '$' + str(remaining)
+		
+		if remaining > 0 and rightSibling['serverID'] != 'SXX':
+			if rightSibling['serverID'] == myServerId:
+				rightKeys = self.nextKeys(rightSibling['fileName'], remaining)
+			else:
+				rightKeys = client.request(rightSibling['serverID'], query)
+			rightKeys = rightKeys.split('$')
+			for key in rightKeys:
+				key = float(key)
+				ans.append(key)
+
+		return self.stringifyArray(ans)

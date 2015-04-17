@@ -84,16 +84,17 @@ class Main:
 		Returns the server id of the server based p-value of this key,
 		server scores and server occupancy.
 		'''
-		bestScore = 0
-		bestServerID = ''
+		bestScore = -1e9
 		for serverID, value in self.serverData.iteritems():
 			occupancy = (self.fileCount[serverID]['leafCount'] + self.fileCount[serverID]['nodeCount'])*1.0 / value['maxCap'] / (2**20)
 												# maxCap is in GB. fileSize is in KB. PageSize ~ 1
 			mScore = mutualScore(value['score'], occupancy, p(key))
+			print "SCORE : ", mScore
 			if mScore > bestScore:
 				bestScore = mScore
 				bestServerID = serverID
-		return 'S0' + str(random.randint(1,3))
+				print "Best Server: ", bestServerID
+		return bestServerID
 
 	def getNewLeaf(self, key):
 		self.readMetaData()
@@ -141,6 +142,15 @@ class Main:
 		query = 'WINDOWQUERY1$' + response[1] + '$' + str(left) + '$' + str(right)
 		response = client.request(response[0], query)
 		return response
+
+	def knnQuery(self, center, k):
+		query = 'FINDLEAF$' + str(center) + '$' + self.root['fileName']
+		response = client.request(self.root['serverID'], query)
+		response = response.split('$')
+		query = 'KNNQUERY$' + response[1] + '$' + str(center) + '$' + str(k)
+		response = client.request(response[0], query)
+		return response
+
 
 	# if __name__=='__main__':
 	#       # client.readServerMap()

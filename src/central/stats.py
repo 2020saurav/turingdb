@@ -66,14 +66,13 @@ def trainModel(queryFile):
 			rangeData[right] -= 1
 
 		elif line[0] == '3': # kNN QUERY
-			pass
-			# center = int(float(line[1])*divisions)
-			# k = int(line[2])
-			# # arbitrary 2000. Can be made f(k, total_points)
-			# left = max(0, center-2000)
-			# right = min(divisions, center+2000)
-			# rangeData[left] += 1
-			# rangeData[right] -= 1
+			center = int(float(line[1])*divisions)
+			k = int(line[2])
+			# arbitrary 100. Can be made f(k, total_points)
+			left = max(0, center-100)
+			right = min(divisions, center+100)
+			rangeData[left] += 1
+			rangeData[right] -= 1
 
 		elif line[0] == '4': # WINDOW QUERY
 			left = int(float(line[1])*divisions)
