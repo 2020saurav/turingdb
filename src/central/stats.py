@@ -8,8 +8,9 @@ import sys
 #
 # data.append()
 maxVal = 1e-9
+minVal = 1e9
 divisions = 1000000
-data = [0]*(divisions+1)
+data = []
 
 def p(key):
 	# normalized value for occurence of this key
@@ -29,14 +30,14 @@ def magic2(score, probability):
 	# May add two additional inverted Gaussians with means at (1,0) and (0,1).
 	# This may perform better.
 	# Other functions can be (magic1)**n : Try visualizing with 3D plots
-	return 1
+	return 1 - abs(score-probability)
 
 def penalize(score, occupancy):
 	# add weights to these parameters for proper scaling : try empirically
 	return score - occupancy
 
 def mutualScore(score, occupancy, probability):
-	mScore = magic1(score, probability)
+	mScore = magic2(score, probability)
 	mScore = penalize(mScore, occupancy)
 	return mScore
 
@@ -65,13 +66,14 @@ def trainModel(queryFile):
 			rangeData[right] -= 1
 
 		elif line[0] == '3': # kNN QUERY
-			center = int(float(line[1])*divisions)
-			k = int(line[2])
-			# arbitrary 2000. Can be made f(k, total_points)
-			left = max(0, center-2000)
-			right = min(divisions, center+2000)
-			rangeData[left] += 1
-			rangeData[right] -= 1
+			pass
+			# center = int(float(line[1])*divisions)
+			# k = int(line[2])
+			# # arbitrary 2000. Can be made f(k, total_points)
+			# left = max(0, center-2000)
+			# right = min(divisions, center+2000)
+			# rangeData[left] += 1
+			# rangeData[right] -= 1
 
 		elif line[0] == '4': # WINDOW QUERY
 			left = int(float(line[1])*divisions)
@@ -97,18 +99,21 @@ def trainModel(queryFile):
 	f.close()
 
 def initialize():
-	global data, maxVal
+	global data, maxVal, minVal
 	f = open('train.data')
 	i = 0
 	lines = f.readlines()
 
+	data = []
 	for line in lines:
 		value = int(line.strip())
-		data[i] = value
+		data.append(value)
 		maxVal = max(maxVal, value)
+		minVal = min(minVal, value)
 
 	for i in range(0, divisions):
-		data[i] = data[i]*1.0/maxVal
+		# data[i] = data[i]*1.0/maxVal
+		data[i] = (data[i]-minVal)*1.0/(maxVal-minVal)
 
 
 if __name__ == '__main__':
@@ -116,3 +121,6 @@ if __name__ == '__main__':
 	if choice == 1:
 		queryFile = raw_input('Query Filepath: ')
 		trainModel(queryFile)
+	elif choice == 2:
+		initialize()
+		print data
