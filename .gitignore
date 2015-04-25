@@ -1,4 +1,5 @@
 *.aux
 *.log
 src/central/*.pyc
+src/dataserver/*.pyc
 src/*.pyc
